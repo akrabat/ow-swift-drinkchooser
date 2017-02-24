@@ -1,3 +1,4 @@
+
 import Glibc
 import Foundation
 
@@ -22,6 +23,14 @@ struct HotDrinks {
 }
 
 func main(args: [String:Any]) -> [String:Any] {
+
+    // extract settings
+    guard let redis_host: String = args["redis_host"] as! String,
+        let redis_port: Int32 = Int32(args["redis_port"] as! Int),
+        let redis_password: String = args["redis_password"] as! String else {
+        return ["failed": -1]
+    }
+ 
     // seed rand()
     let time = UInt32(Date().timeIntervalSince1970)
     print(time)
@@ -29,6 +38,53 @@ func main(args: [String:Any]) -> [String:Any] {
 
     let drinks = HotDrinks()
     let drink = drinks.drinks.randomChoice()
-    return [ "Recommendation" : drink ]
+
+
+    let redis = Redis()
+    var errorResult = ""
+    redis.connect(host: redis_host, port: redis_port) { (redisError: NSError?) in
+        if let error = redisError {
+            print(error)
+            errorResult = "Failed to connect to Redis";
+        }
+        else {
+            print("Connected to Redis on \(redis_host):\(redis_port)")
+
+            redis.auth(redis_password) { (redisError: NSError?) in
+                if let error = redisError {
+                    print(error)
+                    errorResult = "Failed to authenicate to Redis";
+                }
+                else {
+                    print("Authenticated to Redis")
+
+                    // add a count to this drink
+                    redis.zincrby("drink_counts", increment: 1,  member: drink) { (result: RedisString?, redisError: NSError?) in
+                        if let error = redisError {
+                            print(error)
+                        } else {
+                            if let result = result {
+                                print ("Incrementing '\(drink). It is now \(result)'")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (errorResult == "") {
+        // successful: return the recommended drink
+        return [
+            "Recommendation" : drink,
+        ]
+    }
+
+    // error: return error message and set status code
+    return [
+        "Failed" : errorResult,
+        "code" : 500,
+    ]
+ 
 }
 
