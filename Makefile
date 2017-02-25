@@ -32,7 +32,7 @@ create-api-endpoint-choose:
 # targets for counts action
 
 build-counts:
-	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
+	cat actions/_common.swift actions/counts.swift > build/counts.swift
 	wsk action update DC/counts build/counts.swift \
 		--annotation description 'Count the drinks' \
 		--annotation final true --annotation web-export true
@@ -49,6 +49,19 @@ run-action-counts:
 create-api-endpoint-counts:
 	wsk api-experimental create /DC/counts get DC/counts
 
+
+
+# ------------------------------------------------------------------------------
+# targets for incrementDrinkCount action
+
+build-increment-drink-count:
+	cat lib/Redis/Redis*.swift actions/_common.swift actions/incrementDrinkCount.swift > build/incrementDrinkCount.swift
+	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.swift \
+		--annotation description 'Increment the drink counter' \
+		--annotation final true --annotation web-export true
+
+run-action-increment-drink-count:
+	-wsk action invoke --blocking --result DC/incrementDrinkCount  --param name "A test drink"
 
 
 # ------------------------------------------------------------------------------

@@ -22,64 +22,34 @@ func main(args: [String:Any]) -> [String:Any] {
         print ("args: \(args)")
     }
 
-    // extract settings
-    guard let redis_host: String = args["redis_host"] as! String,
-        let redis_port: Int32 = Int32(args["redis_port"] as! Int),
-        let redis_password: String = args["redis_password"] as! String else {
-        return ["failed": -1]
-    }
- 
     // seed rand()
     let time = UInt32(Date().timeIntervalSince1970)
     srand(time)
 
+    // determine choice of dring
     let drinks = HotDrinks()
     let drink = drinks.drinks.randomElement()
 
+    // call incrementDrinkCount action
+    let incrementAction = "/ibm1@19ft.com_craft/DC/incrementDrinkCount"
+    let invokeResult = Whisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink])
+    let incrementResult = JSON(invokeResult)
 
-    let redis = Redis()
-    var errorResult = ""
-    redis.connect(host: redis_host, port: redis_port) { (redisError: NSError?) in
-        if let error = redisError {
-            print(error)
-            errorResult = "Failed to connect to Redis";
-        }
-        else {
-            print("Connected to Redis on \(redis_host):\(redis_port)")
-
-            redis.auth(redis_password) { (redisError: NSError?) in
-                if let error = redisError {
-                    print(error)
-                    errorResult = "Failed to authenicate to Redis";
-                }
-                else {
-                    print("Authenticated to Redis")
-
-                    // add a count to this drink
-                    redis.zincrby("drink_counts", increment: 1,  member: drink) { (result: RedisString?, redisError: NSError?) in
-                        if let error = redisError {
-                            print(error)
-                        } else {
-                            if let result = result {
-                                print ("Incrementing '\(drink). It is now \(result)'")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    // handle error situations:
+    // 1. no response
+    // 2. status contains the word "error"
+    guard let status = incrementResult["response"]["status"].string else {
+        print("error: No response from wsk action")
+        return createResponse(["error": "No response from wsk action"], code: 500)
     }
-
-    var newArgs = args;
-    newArgs["redis_password"] = "==hidden=="
-
-    if (errorResult != "") {
-        // error: return error message
-        let body: [String:Any] = ["error" : errorResult]
-        return createResponse(body, code: 500)
+    if status.range(of:"error") != nil {
+        let error = incrementResult["response"]["result"]["error"].stringValue
+        print("error: \(error)")
+        return createResponse(["error": error], code: 500)
     }
 
     // successful: return the recommended drink
     let body: [String:Any] = ["recommendation" : drink]
+    print("response: \(body)")
     return createResponse(body, code: 200)
 }
