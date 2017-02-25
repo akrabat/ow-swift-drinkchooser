@@ -1,20 +1,6 @@
 
-import Glibc
 import Foundation
-import SwiftyJSON
 
-
-// Struct for our drinks
-struct HotDrinks {
-    let drinks = [
-        "A nice hot cup of tea!", // The true drink of an Englishman! (even though it was invented in China…)
-        "Espresso", // Coffee brewed by forcing a small amount of nearly boiling water under pressure through finely ground coffee beans.
-        "Hot chocolate", // Also known as hot cocoa, it typically consists of shaved chocolate, melted chocolate or cocoa powder, heated milk or water, and sugar. Hot egg chocolate is a type of hot chocolate.
-        "Anijsmelk", // Dutch drink, consisting of hot milk flavored with anise seed and sweetened with sugar
-        "Bandrek", // raditional hot, sweet and spicy beverage native to Sundanese people of West Java, Indonesia. It's a mixture of jahe (ginger) essence, gula merah (palm sugar) and kayu manis (cinnamon).
-
-    ]
-}
 
 func main(args: [String:Any]) -> [String:Any] {
 
@@ -28,14 +14,8 @@ func main(args: [String:Any]) -> [String:Any] {
         let redis_password: String = args["redis_password"] as! String else {
         return ["failed": -1]
     }
- 
-    // seed rand()
-    let time = UInt32(Date().timeIntervalSince1970)
-    srand(time)
 
-    let drinks = HotDrinks()
-    let drink = drinks.drinks.randomElement()
-
+    var results: Array<[String:Int]> = Array()
 
     let redis = Redis()
     var errorResult = ""
@@ -56,12 +36,27 @@ func main(args: [String:Any]) -> [String:Any] {
                     print("Authenticated to Redis")
 
                     // add a count to this drink
-                    redis.zincrby("drink_counts", increment: 1,  member: drink) { (result: RedisString?, redisError: NSError?) in
+                    redis.zrevrange("drink_counts", start: 0, stop: 10, withscores: true) {
+                        (list: [RedisString?]?, redisError: NSError?) in
+
                         if let error = redisError {
                             print(error)
                         } else {
-                            if let result = result {
-                                print ("Incrementing '\(drink). It is now \(result)'")
+                            // unwrap list
+                            guard let list = list?.flatMap({ $0 }) else {
+                                return
+                            }
+                            // print ("list: \(list)\n")
+
+                            // The results are a list with name followed by count, so we
+                            // massage into a hash of [Name: count]
+                            var name = ""
+                            for (index, element) in list.enumerated() {
+                                if index % 2 != 0 {
+                                    results.append([name: element.asInteger])
+                                } else {
+                                    name = element.asString
+                                }
                             }
                         }
                     }
@@ -70,16 +65,15 @@ func main(args: [String:Any]) -> [String:Any] {
         }
     }
 
-    var newArgs = args;
-    newArgs["redis_password"] = "==hidden=="
-
     if (errorResult != "") {
         // error: return error message
         let body: [String:Any] = ["error" : errorResult]
         return createResponse(body, code: 500)
     }
 
-    // successful: return the recommended drink
-    let body: [String:Any] = ["recommendation" : drink]
-    return createResponse(body, code: 200)
+    // successful: return the results
+    print ("results: \(results)\n")
+    return createResponse(["results": results], code: 200)
 }
+
+
