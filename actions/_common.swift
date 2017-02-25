@@ -33,7 +33,8 @@ extension String {
 // key in the input data
 func createResponse(_ body: [String: Any], code: Int) -> [String:Any]
 {
-    guard let whiskInput = ProcessInfo.processInfo.environment["WHISK_INPUT"] else {
+    let env = ProcessInfo.processInfo.environment
+    guard let whiskInput = env["WHISK_INPUT"] else {
         return body
     }
 
