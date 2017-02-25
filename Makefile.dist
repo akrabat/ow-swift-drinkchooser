@@ -1,6 +1,6 @@
 .PHONY: all build run setup list_targets log
 
-NAMESPACE = ibm1@19ft.com_craft
+NAMESPACE = ORGANISATION_SPACE
 
 choose: build-choose run-choose
 counts: build-counts run-counts
