@@ -18,8 +18,18 @@ struct HotDrinks {
 
 func main(args: [String:Any]) -> [String:Any] {
 
+    let env = ProcessInfo.processInfo.environment
     if args["debug"] != nil {
         print ("args: \(args)")
+        print ("env: \(env)")
+
+        // set debug to 2 to force an exit (convenience)
+        if args["debug"] as! String == "2" {
+            return createResponse([
+                "args": args,
+                "env": env,
+            ], code: 200)
+        }
     }
 
     // seed rand()
