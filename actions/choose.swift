@@ -41,7 +41,8 @@ func main(args: [String:Any]) -> [String:Any] {
     let drink = drinks.drinks.randomElement()
 
     // call incrementDrinkCount action
-    let incrementAction = "/ibm1@19ft.com_craft/DC/incrementDrinkCount"
+    let namespace : String = env["__OW_NAMESPACE"] ?? ""
+    let incrementAction = "/" + namespace + "/DC/incrementDrinkCount"
     let invokeResult = Whisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink])
     let incrementResult = JSON(invokeResult)
 
