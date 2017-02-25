@@ -3,28 +3,6 @@ import Glibc
 import Foundation
 import SwiftyJSON
 
-// extend Array to pick a random choice from it
-extension Array {
-    func randomChoice() -> Element {
-        let index = Int(rand()) % count
-        return self[index]
-    }
-}
-
-extension String {
-
-    func fromBase64() -> String? {
-        guard let data = Data(base64Encoded: self) else {
-            return nil
-        }
-
-        return String(data: data, encoding: .utf8)
-    }
-
-    func toBase64() -> String {
-        return Data(self.utf8).base64EncodedString()
-    }
-}
 
 // Struct for our drinks
 struct HotDrinks {
@@ -40,6 +18,10 @@ struct HotDrinks {
 
 func main(args: [String:Any]) -> [String:Any] {
 
+    if args["debug"] != nil {
+        print ("args: \(args)")
+    }
+
     // extract settings
     guard let redis_host: String = args["redis_host"] as! String,
         let redis_port: Int32 = Int32(args["redis_port"] as! Int),
@@ -49,11 +31,10 @@ func main(args: [String:Any]) -> [String:Any] {
  
     // seed rand()
     let time = UInt32(Date().timeIntervalSince1970)
-    print(time)
     srand(time)
 
     let drinks = HotDrinks()
-    let drink = drinks.drinks.randomChoice()
+    let drink = drinks.drinks.randomElement()
 
 
     let redis = Redis()
@@ -89,26 +70,16 @@ func main(args: [String:Any]) -> [String:Any] {
         }
     }
 
-    if (errorResult == "") {
-        // successful: return the recommended drink
-        let body = JSON(["recommendation" : drink]).rawString()!.toBase64()
-        return [
-            "body": body,
-            "code": 200,
-            "headers": [
-                "Content-Type": "application/json",
-            ],
-        ]
+    var newArgs = args;
+    newArgs["redis_password"] = "==hidden=="
+
+    if (errorResult != "") {
+        // error: return error message
+        let body: [String:Any] = ["error" : errorResult]
+        return createResponse(body, code: 500)
     }
 
-    // error: return error message and set status code
-    let body = JSON(["error" : errorResult]).rawString()!.toBase64()
-    return [
-        "body": body,
-        "code": 500,
-        "headers": [
-            "Content-Type": "application/json",
-        ],
-    ]
+    // successful: return the recommended drink
+    let body: [String:Any] = ["recommendation" : drink]
+    return createResponse(body, code: 200)
 }
-

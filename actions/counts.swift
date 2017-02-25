@@ -1,24 +1,12 @@
 
-// import Glibc
 import Foundation
-import SwiftyJSON
 
-extension String {
-
-    func fromBase64() -> String? {
-        guard let data = Data(base64Encoded: self) else {
-            return nil
-        }
-
-        return String(data: data, encoding: .utf8)
-    }
-
-    func toBase64() -> String {
-        return Data(self.utf8).base64EncodedString()
-    }
-}
 
 func main(args: [String:Any]) -> [String:Any] {
+
+    if args["debug"] != nil {
+        print ("args: \(args)")
+    }
 
     // extract settings
     guard let redis_host: String = args["redis_host"] as! String,
@@ -58,7 +46,7 @@ func main(args: [String:Any]) -> [String:Any] {
                             guard let list = list?.flatMap({ $0 }) else {
                                 return
                             }
-                            print ("\nlist: \(list)\n")
+                            // print ("list: \(list)\n")
 
                             // The results are a list with name followed by count, so we
                             // massage into a hash of [Name: count]
@@ -77,28 +65,15 @@ func main(args: [String:Any]) -> [String:Any] {
         }
     }
 
-    if (errorResult == "") {
-        // successful: return the results
-        print ("results: \(results)")
-        let body = JSON(results).rawString()!.toBase64()
-        return [
-            "body": body,
-            "code": 200,
-            "headers": [
-                "Content-Type": "application/json",
-            ],
-        ]
+    if (errorResult != "") {
+        // error: return error message
+        let body: [String:Any] = ["error" : errorResult]
+        return createResponse(body, code: 500)
     }
 
-    // error: return error message and set status code
-    let body = JSON(["error" : errorResult]).rawString()!.toBase64()
-    return [
-        "body": body,
-        "code": 500,
-        "headers": [
-            "Content-Type": "application/json",
-        ],
-    ]
+    // successful: return the results
+    print ("results: \(results)\n")
+    return createResponse(results, code: 200)
 }
 
 
