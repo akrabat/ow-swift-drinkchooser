@@ -1,16 +1,23 @@
 # Drink Chooser
 
-This is a simple Swift Serverless app which will suggest a drink when asked
+This is a simple [OpenWhisk][1] serverless app written in [Swift][2] that will
+suggest a drink when asked. You can also view the top recommended drinks.
 
+[1]: http://openwhisk.org
+[2]: https://swift.org
 
 ## Actions
 
-There are three actions:
+There are two actions availble via web actions:
  
-* `choose` which will recommend a drink for you
-* `incrementDrinkCount` which is called from `choose` to increment the number of times
+* **`choose`**: will recommend a drink for you
+* **`counts`**: will show how often the top 10 drinks have been recommended
+
+
+There is one internal action:
+
+* **`incrementDrinkCount`**: called from `choose` to increment the number of times
   this drink has been recommended in Redis
-* `counts` which will show how often the top 10 drinks have been recommended
 
 ## Notes
 
@@ -27,8 +34,7 @@ There are three actions:
 ### Example output
 
 ```text
-$ make run-choose
-curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
+$ curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
     https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/choose.http
 
 HTTP/1.1 200 OK
@@ -50,24 +56,39 @@ Set-Cookie: DPJSESSIONID=PBC5YS:1376290542; Path=/; Domain=.whisk.ng.bluemix.net
 
 
 ```text
-$ make run-choose
-curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/choose.http
+$ curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
+https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/counts.http
 
 HTTP/1.1 200 OK
 X-Backside-Transport: OK OK
 Connection: Keep-Alive
 Transfer-Encoding: chunked
 Server: nginx/1.11.1
-Date: Sat, 25 Feb 2017 18:14:26 GMT
+Date: Sat, 25 Feb 2017 18:21:15 GMT
 Content-Type: application/json
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Headers: Authorization, Content-Type
-X-Global-Transaction-ID: 631456385
+X-Global-Transaction-ID: 339698429
 Set-Cookie: DPJSESSIONID=PBC5YS:1376290542; Path=/; Domain=.whisk.ng.bluemix.net
 
 {
-  "recommendation": "A nice hot cup of tea!"
+  "results": [
+    {
+      "Anijsmelk": 28
+    },
+    {
+      "A nice hot cup of tea!": 23
+    },
+    {
+      "Hot chocolate": 21
+    },
+    {
+      "Espresso": 19
+    },
+    {
+      "Bandrek": 18
+    }
+  ]
 }
 ```
 
