@@ -36,7 +36,7 @@ func main(args: [String:Any]) -> [String:Any] {
             redis.auth(redis_password) { (redisError: NSError?) in
                 if let error = redisError {
                     print(error)
-                    errorResult = "Failed to authenicate to Redis";
+                    errorResult = "Failed to authenticate to Redis";
                 }
                 else {
                     print("Authenticated to Redis")
