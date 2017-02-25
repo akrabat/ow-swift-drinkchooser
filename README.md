@@ -21,8 +21,10 @@ There is one internal action:
 
 ## Notes
 
-* You'll need a `parameters.json` - start with `parameters.json.dist`
-* Edit `NAMESPACE` at the top of `Makefile`
+* Create `parameters.json` - start with `parameters.json.dist`
+  * Edit the information in `parameters.json` to connect to your Compose Redis instance
+* Create `Makefile` - start with `Makefile.dist`
+  * Edit `NAMESPACE` at the top of `Makefile`
 * Read the makfile to see what to do:
 
     * `make setup` to create the package
