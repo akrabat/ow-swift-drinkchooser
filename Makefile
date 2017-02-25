@@ -43,7 +43,7 @@ run-web-counts:
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http \
 
 run-action-counts:
-	-wsk action invoke --blocking --result DC/counts  --param type hot
+	-wsk action invoke --blocking --result DC/counts
 
 # Call the API endpoint: api_url=`wsk api-experimental list | grep DC/count | awk 'END {print $NF}'`; curl -i $api_url;
 create-api-endpoint-counts:

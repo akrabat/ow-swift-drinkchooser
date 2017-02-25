@@ -15,7 +15,7 @@ func main(args: [String:Any]) -> [String:Any] {
         return ["failed": -1]
     }
 
-    var results = [String: Int]()
+    var results: Array<[String:Int]> = Array()
 
     let redis = Redis()
     var errorResult = ""
@@ -53,7 +53,7 @@ func main(args: [String:Any]) -> [String:Any] {
                             var name = ""
                             for (index, element) in list.enumerated() {
                                 if index % 2 != 0 {
-                                    results[name] = element.asInteger
+                                    results.append([name: element.asInteger])
                                 } else {
                                     name = element.asString
                                 }
@@ -73,7 +73,7 @@ func main(args: [String:Any]) -> [String:Any] {
 
     // successful: return the results
     print ("results: \(results)\n")
-    return createResponse(results, code: 200)
+    return createResponse(["results": results], code: 200)
 }
 
 
