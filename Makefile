@@ -11,7 +11,7 @@ build: build-choose build-increment-drink-count build-counts
 # targets for  choose action
 
 build-choose:
-	cat lib/Redis/Redis*.swift actions/_common.swift actions/choose.swift > build/choose.swift
+	cat actions/_common.swift actions/choose.swift > build/choose.swift
 	wsk action update DC/choose build/choose.swift \
 		--annotation description 'Choose me a drink' \
 		--annotation final true --annotation web-export true
@@ -19,14 +19,14 @@ build-choose:
 # CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/choose.http
 run-choose:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.http \
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.http
 
 
 # ------------------------------------------------------------------------------
 # targets for counts action
 
 build-counts:
-	cat actions/_common.swift actions/counts.swift > build/counts.swift
+	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
 	wsk action update DC/counts build/counts.swift \
 		--annotation description 'Count the drinks' \
 		--annotation final true --annotation web-export true
@@ -34,7 +34,7 @@ build-counts:
 # CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/counts.http
 run-counts:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http \
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http
 
 
 # ------------------------------------------------------------------------------
