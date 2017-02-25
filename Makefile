@@ -17,7 +17,8 @@ build-choose:
 
 run-web-choose:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.json
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.http \
+	&& echo ""
 
 run-action-choose:
 	-wsk action invoke --blocking --result DC/choose --param type hot
@@ -38,8 +39,8 @@ build-counts:
 
 run-web-counts:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.json
-
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http \
+	&& echo ""
 
 run-action-counts:
 	-wsk action invoke --blocking --result DC/counts  --param type hot

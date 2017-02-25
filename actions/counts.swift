@@ -1,6 +1,22 @@
 
 // import Glibc
 import Foundation
+import SwiftyJSON
+
+extension String {
+
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
+    }
+
+    func toBase64() -> String {
+        return Data(self.utf8).base64EncodedString()
+    }
+}
 
 func main(args: [String:Any]) -> [String:Any] {
 
@@ -64,15 +80,25 @@ func main(args: [String:Any]) -> [String:Any] {
     if (errorResult == "") {
         // successful: return the results
         print ("results: \(results)")
-        return results
+        let body = JSON(results).rawString()!.toBase64()
+        return [
+            "body": body,
+            "code": 200,
+            "headers": [
+                "Content-Type": "application/json",
+            ],
+        ]
     }
 
     // error: return error message and set status code
+    let body = JSON(["error" : errorResult]).rawString()!.toBase64()
     return [
-        "Failed" : errorResult,
-        "code" : 500,
+        "body": body,
+        "code": 500,
+        "headers": [
+            "Content-Type": "application/json",
+        ],
     ]
- 
 }
 
 
