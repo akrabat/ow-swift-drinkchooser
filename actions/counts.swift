@@ -75,5 +75,3 @@ func main(args: [String:Any]) -> [String:Any] {
     print ("results: \(results)\n")
     return createResponse(["results": results], code: 200)
 }
-
-

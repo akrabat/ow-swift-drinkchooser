@@ -1,6 +1,6 @@
 # Drink Chooser
 
-This is a simple Swift Serverless app which will suggest a drink when I ask it
+This is a simple Swift Serverless app which will suggest a drink when asked
 
 
 ## OpenWhisk authorisation:
@@ -9,6 +9,18 @@ This is a simple Swift Serverless app which will suggest a drink when I ask it
     2. Copy "New Authentication" command and paste into console
     3. Unset namespace: `wsk property unset --namespace`
 
+
+## Notes
+
+* You'll need a `parameters.json` - start with `parameters.json.dist`
+* Edit `NAMESPACE` at the top of `Makefile`
+* Read the makfile to see what to do:
+
+    * `make setup` to create the package
+    * `make build` to upload all the actions
+    * `make run-choose` to have a drink recommended to you
+    * `make run-counts` to view recommendation stats
+    * `make lastlog` will show the last activation's log
 
 ## Actions
 

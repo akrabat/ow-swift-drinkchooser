@@ -2,9 +2,10 @@
 
 NAMESPACE = ibm1@19ft.com_craft
 
-choose: build-choose run-web-choose
-counts: build-counts run-web-counts
+choose: build-choose run-choose
+counts: build-counts run-counts
 
+build: build-choose build-increment-drink-count build-counts
 
 # ------------------------------------------------------------------------------
 # targets for  choose action
@@ -16,16 +17,9 @@ build-choose:
 		--annotation final true --annotation web-export true
 
 # CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/choose.http
-run-web-choose:
+run-choose:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.http \
-
-run-action-choose:
-	-wsk action invoke --blocking --result DC/choose --param type hot
-
-# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/choose | awk 'END {print $NF}'`; curl -i $api_url;
-create-api-endpoint-choose:
-	wsk api-experimental create /DC/choose get DC/choose
 
 
 # ------------------------------------------------------------------------------
@@ -38,17 +32,9 @@ build-counts:
 		--annotation final true --annotation web-export true
 
 # CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/counts.http
-run-web-counts:
+run-counts:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http \
-
-run-action-counts:
-	-wsk action invoke --blocking --result DC/counts
-
-# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/count | awk 'END {print $NF}'`; curl -i $api_url;
-create-api-endpoint-counts:
-	wsk api-experimental create /DC/counts get DC/counts
-
 
 
 # ------------------------------------------------------------------------------
@@ -59,9 +45,6 @@ build-increment-drink-count:
 	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.swift \
 		--annotation description 'Increment the drink counter' \
 		--annotation final true --annotation web-export true
-
-run-action-increment-drink-count:
-	-wsk action invoke --blocking --result DC/incrementDrinkCount  --param name "A test drink"
 
 
 # ------------------------------------------------------------------------------
@@ -74,4 +57,29 @@ setup:
 	# Create package
 	wsk package update DC --param-file parameters.json
 
+
+
+# ------------------------------------------------------------------------------
+# Run the action from the command line
+
+action-choose:
+	-wsk action invoke --blocking --result DC/choose --param type hot
+
+action-counts:
+	-wsk action invoke --blocking --result DC/counts
+
+action-incrementDrinkCount:
+	-wsk action invoke --blocking --result DC/incrementDrinkCount  --param name "A test drink"
+
+
+# ------------------------------------------------------------------------------
+# API Gateway targets
+
+# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/choose | awk 'END {print $NF}'`; curl -i $api_url;
+api-endpoint-choose:
+	wsk api-experimental create /DC/choose get DC/choose
+
+# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/count | awk 'END {print $NF}'`; curl -i $api_url;
+api-endpoint-counts:
+	wsk api-experimental create /DC/counts get DC/counts
 
