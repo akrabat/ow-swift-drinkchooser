@@ -36,13 +36,16 @@ func createResponse(_ body: [String: Any], code: Int) -> [String:Any]
 {
     let env = ProcessInfo.processInfo.environment
     guard let whiskInput = env["WHISK_INPUT"] else {
+        // No WHISK_INPUT, assume a normal action
         return body
     }
 
     if whiskInput.range(of:"__ow_meta_verb") != nil {
         // This is a web action as the arguments contain the "__ow_meta_verb" key
+
+        let json = WhiskJsonUtils.dictionaryToJsonString(jsonDict: body) ?? ""
         return [
-            "body": JSON(body).rawString()!.toBase64(),
+            "body": json.toBase64(),
             "code": code,
             "headers": [
                 "Content-Type": "application/json",
@@ -50,5 +53,11 @@ func createResponse(_ body: [String: Any], code: Int) -> [String:Any]
         ]
     }
 
+    // This is not a web action
+    if code >= 400 && body["error"] == nil {
+        // we need to set the "error" key in the array
+        // so that OpenWhisk knows that something's gone wrong
+        return ["error": code]
+    }
     return body
 }
