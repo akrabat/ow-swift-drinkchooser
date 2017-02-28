@@ -5,6 +5,7 @@ import SwiftyJSON
 // add randomElement() to the Array type
 extension Array {
     func randomElement() -> Element {
+        // note, seed rand() before use with: srand(UInt32(time(nil)))
         let index = Int(rand()) % count
         return self[index]
     }

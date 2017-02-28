@@ -33,8 +33,7 @@ func main(args: [String:Any]) -> [String:Any] {
     }
 
     // seed rand()
-    let time = UInt32(Date().timeIntervalSince1970)
-    srand(time)
+    srand(UInt32(time(nil)))
 
     // determine choice of dring
     let drinks = HotDrinks()
