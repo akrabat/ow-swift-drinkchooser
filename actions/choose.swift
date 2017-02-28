@@ -42,20 +42,12 @@ func main(args: [String:Any]) -> [String:Any] {
     // call incrementDrinkCount action
     let namespace : String = env["__OW_NAMESPACE"] ?? ""
     let incrementAction = "/" + namespace + "/DC/incrementDrinkCount"
-    let invokeResult = Whisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink])
-    let incrementResult = JSON(invokeResult)
+    let result = Whisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink])
 
-    // handle error situations:
-    // 1. no response
-    // 2. status contains the word "error"
-    guard let status = incrementResult["response"]["status"].string else {
-        print("error: No response from wsk action")
-        return createResponse(["error": "No response from wsk action"], code: 500)
-    }
-    if status.range(of:"error") != nil {
-        let error = incrementResult["response"]["result"]["error"].stringValue
-        print("error: \(error)")
-        return createResponse(["error": error], code: 500)
+    let jsonResult = JSON(result)
+    if jsonResult["response"]["success"].boolValue == false {
+        print("error: incrementDrinkCount failed")
+        return createResponse(["error": "incrementDrinkCount failed"], code: 500)
     }
 
     // successful: return the recommended drink
