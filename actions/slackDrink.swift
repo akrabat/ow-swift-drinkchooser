@@ -18,19 +18,21 @@ func main(args: [String:Any]) -> [String:Any] {
         let channelName = args["channel_name"] as? String,
         let userId = args["user_id"] as? String,
         let username = args["user_name"] as? String,
+        let responseUrl = args["response_url"] as? String,
+        let responseUrl = args["token"] as? String,
         let text = args["text"] as? String
     else {
-        return createResponse(["error": "Missing argument. Must have command, channel_id, channel_name, user_id, user_name, text"], code: 400)
+        return createResponse(["error": "Missing argument. Must have command, channel_id, channel_name, user_id, user_name, response_url, token, text"], code: 400)
     }
 
     // "command" must be "drink"
     if command != "/drink" {
-        return createResponse(["text": "You didn't ask for a drink!"], code: 400)
+        return createResponse(["response_type": "ephemeral", "text": "You didn't ask for a drink!"])
     }
 
     // text must be "please"
     if text != "please" {
-        return createResponse(["text": "You didn't ask nicely!"], code: 400)
+        return createResponse(["response_type": "ephemeral", "text": "You didn't ask nicely!"])
     }
 
     print("")
@@ -46,7 +48,7 @@ func main(args: [String:Any]) -> [String:Any] {
     
     let jsonResult = JSON(result)
     if jsonResult["response"]["success"].boolValue == false {
-        return createResponse(["text": "I couldn't select a drink for you at this time, sorry!"], code: 400)
+        return createResponse(["response_type": "ephemeral", "text": "I couldn't select a drink for you at this time, sorry!"])
     }
 
     let drink = jsonResult["response"]["result"]["recommendation"].stringValue
