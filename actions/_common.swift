@@ -2,15 +2,6 @@
 import Glibc
 import SwiftyJSON
 
-// add randomElement() to the Array type
-extension Array {
-    func randomElement() -> Element {
-        // note, seed rand() before use with: srand(UInt32(time(nil)))
-        let index = Int(rand()) % count
-        return self[index]
-    }
-}
-
 /// Add fromBase64() and toBase64() to the String type
 extension String {
     func fromBase64() -> String? {
