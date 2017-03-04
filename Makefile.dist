@@ -2,10 +2,28 @@
 
 NAMESPACE = ORGANISATION_SPACE
 
+
+build: build-slackDrink build-choose build-increment-drink-count build-counts
+
+slackDrink: build-slackDrink run-slackDrink
 choose: build-choose run-choose
 counts: build-counts run-counts
 
-build: build-choose build-increment-drink-count build-counts
+# ------------------------------------------------------------------------------
+# targets for slackDrink action
+
+build-slackDrink:
+	cat actions/_common.swift actions/slackDrink.swift > build/slackDrink.swift
+	wsk action update DC/slackDrink build/slackDrink.swift \
+		--annotation description 'Receive Slack /drink command' \
+		--annotation final true --annotation web-export true
+
+# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrink.http
+run-slackDrink:
+	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
+	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "text": "please"}' \
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrink.http
+
 
 # ------------------------------------------------------------------------------
 # targets for  choose action
