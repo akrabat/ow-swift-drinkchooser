@@ -9,6 +9,7 @@ func main(args: [String:Any]) -> [String:Any] {
     userArgs["redis_host"] = nil
     userArgs["redis_port"] = nil
     userArgs["redis_password"] = nil
+    userArgs["slack_verification_token"] = nil
     print("userArgs: \(userArgs)")
 
     // validate args
@@ -19,10 +20,14 @@ func main(args: [String:Any]) -> [String:Any] {
         let userId = args["user_id"] as? String,
         let username = args["user_name"] as? String,
         let responseUrl = args["response_url"] as? String,
-        let responseUrl = args["token"] as? String,
+        let token = args["token"] as? String,
         let text = args["text"] as? String
     else {
         return createResponse(["error": "Missing argument. Must have command, channel_id, channel_name, user_id, user_name, response_url, token, text"], code: 400)
+    }
+
+    if (token != args["slack_verification_token"] as! String) {
+        return createResponse(["response_type": "ephemeral", "text": "Missing Slack verification token"])
     }
 
     // "command" must be "drink"

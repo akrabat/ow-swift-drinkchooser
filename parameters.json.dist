@@ -1,5 +1,6 @@
 {
     "redis_host" : "sl-us-dal-9-portal.1.dblayer.com",
     "redis_port" : 20331,
-    "redis_password" : "{secret here}"
+    "redis_password" : "{secret here}",
+    "slack_verification_token": "{verification token here}
 }

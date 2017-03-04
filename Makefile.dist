@@ -1,6 +1,7 @@
 .PHONY: all build run setup list_targets log
 
 NAMESPACE = ORGANISATION_SPACE
+SLACK_TOKEN = FROMSLACK
 
 
 build: build-slackDrink build-choose build-increment-drink-count build-counts
@@ -18,10 +19,10 @@ build-slackDrink:
 		--annotation description 'Receive Slack /drink command' \
 		--annotation final true --annotation web-export true
 
-# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrink.http
+# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"token": "SLACK_TOKEN", "command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrink.http
 run-slackDrink:
 	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "text": "please"}' \
+	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "token": "$(SLACK_TOKEN)", "text": "please"}' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrink.http
 
 
