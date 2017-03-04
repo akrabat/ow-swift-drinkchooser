@@ -23,7 +23,7 @@ extension String {
 //
 // We determine if it's a web action call by looking for the "__ow_meta_verb"
 // key in the input data
-func createResponse(_ body: [String: Any], code: Int) -> [String:Any]
+func createResponse(_ body: [String: Any], code: Int = 200) -> [String:Any]
 {
     let env = ProcessInfo.processInfo.environment
     guard let whiskInput = env["WHISK_INPUT"] else {
