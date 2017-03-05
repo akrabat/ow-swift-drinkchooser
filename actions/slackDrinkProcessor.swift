@@ -1,6 +1,8 @@
+import KituraNet
+import SwiftyJSON
 
 func main(args: [String:Any]) -> [String:Any] {
-    print ("slackDrink called")
+    print ("slackDrinkProcessor called")
 
     var userArgs = args
     userArgs["__ow_meta_path"] = nil
@@ -40,7 +42,6 @@ func main(args: [String:Any]) -> [String:Any] {
         return createResponse(["response_type": "ephemeral", "text": "You didn't ask nicely!"])
     }
 
-    print("")
     print("Calling choose action")
 
     // call choose action
@@ -65,5 +66,33 @@ func main(args: [String:Any]) -> [String:Any] {
         "response_type": "in_channel",
         "text" : "How about \(drink), \(username)?"
     ]
+
+    if responseUrl != "" {
+        print("posting to \(responseUrl)")
+        postJsonTo(responseUrl, data: body) { response in
+        }
+    }
+
     return createResponse(body)
+}
+
+func postJsonTo(_ url: String, data: [String:Any], callback: @escaping ClientRequest.Callback) {
+    let jsonBody = WhiskJsonUtils.dictionaryToJsonString(jsonDict: data) ?? ""
+    let base64Body = Data(jsonBody.utf8)
+    postTo(url, body: base64Body, headers: ["Content-Type": "application/json"], callback: callback)
+}
+
+func postTo(_ url: String, body: Data, headers: [String: String], callback: @escaping ClientRequest.Callback)  {
+    var options: [ClientRequest.Options] = [
+        .schema(""),
+        .method("POST"),
+        .hostname(url),
+        .headers(headers)
+    ]
+
+    var result: [String:Any] = ["result": "No response"]
+
+    let request = HTTP.request(options, callback: callback)
+    request.write(from: body)
+    request.end() // send request
 }
