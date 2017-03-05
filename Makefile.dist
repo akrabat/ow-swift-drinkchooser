@@ -4,9 +4,10 @@ NAMESPACE = ORGANISATION_SPACE
 SLACK_TOKEN = FROMSLACK
 
 
-build: build-slackDrink build-choose build-increment-drink-count build-counts
+build: build-slackDrink build-slackDrinkProcessor build-choose build-increment-drink-count build-counts
 
 slackDrink: build-slackDrink run-slackDrink
+slackDrinkProcessor: build-slackDrinkProcessor run-slackDrinkProcessor
 choose: build-choose run-choose
 counts: build-counts run-counts
 
@@ -14,8 +15,8 @@ counts: build-counts run-counts
 # targets for slackDrink action
 
 build-slackDrink:
-	cat actions/_common.swift actions/slackDrink.swift > build/slackDrink.swift
-	wsk action update DC/slackDrink build/slackDrink.swift \
+	cat actions/slackDrink.js > build/slackDrink.js
+	wsk action update DC/slackDrink build/slackDrink.js \
 		--annotation description 'Receive Slack /drink command' \
 		--annotation final true --annotation web-export true
 
@@ -24,6 +25,21 @@ run-slackDrink:
 	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "token": "$(SLACK_TOKEN)", "text": "please"}' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrink.http
+
+# ------------------------------------------------------------------------------
+# targets for slackDrinkProcessor action
+
+build-slackDrinkProcessor:
+	cat actions/slackDrinkProcessor.swift > build/slackDrinkProcessor.swift
+	wsk action update DC/slackDrinkProcessor build/slackDrinkProcessor.swift \
+		--annotation description 'Receive Slack /drink command' \
+		--annotation final true --annotation web-export true
+
+# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"token": "SLACK_TOKEN", "command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrinkProcessor.http
+run-slackDrinkProcessor:
+	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
+	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "token": "$(SLACK_TOKEN)", "text": "please"}' \
+	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrinkProcessor.http
 
 
 # ------------------------------------------------------------------------------
