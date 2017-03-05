@@ -4,16 +4,6 @@ import SwiftyJSON
 func main(args: [String:Any]) -> [String:Any] {
     print ("slackDrinkProcessor called")
 
-    var userArgs = args
-    userArgs["__ow_meta_path"] = nil
-    userArgs["__ow_meta_verb"] = nil
-    userArgs["__ow_meta_headers"] = nil
-    userArgs["redis_host"] = nil
-    userArgs["redis_port"] = nil
-    userArgs["redis_password"] = nil
-    userArgs["slack_verification_token"] = nil
-    print("userArgs: \(userArgs)")
-
     // validate args
     guard
         let command = args["command"] as? String,
