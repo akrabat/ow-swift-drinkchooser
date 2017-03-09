@@ -1,81 +1,73 @@
-.PHONY: all build run setup list_targets log
 
 NAMESPACE = ORGANISATION_SPACE
 SLACK_TOKEN = FROMSLACK
 
 
-build: build-slackDrink build-slackDrinkProcessor build-choose build-increment-drink-count build-counts
+# ------------------------------------------------------------------------------
+# Default target: update all actions into OpenWhisk
+.PHONY: update
+update: build/slackDrink.zip build/choose.zip build/incrementDrinkCount.zip build/counts.zip
 
-slackDrink: build-slackDrink run-slackDrink
-slackDrinkProcessor: build-slackDrinkProcessor run-slackDrinkProcessor
-choose: build-choose run-choose
-counts: build-counts run-counts
 
 # ------------------------------------------------------------------------------
-# targets for slackDrink action
+# Build targets
 
-build-slackDrink:
-	cat actions/slackDrink.js > build/slackDrink.js
-	wsk action update DC/slackDrink build/slackDrink.js \
-		--annotation description 'Receive Slack /drink command' \
+# build slackDrink action
+build/slackDrink.zip: actions/slackDrink.swift
+	cat actions/_common.swift actions/slackDrink.swift > build/slackDrink.swift
+	./compile.sh slackDrink
+	wsk action update DC/slackDrink build/slackDrink.zip --kind swift:3 \
+		--annotation description 'Process Slack /drink command' \
 		--annotation final true --annotation web-export true
 
-# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"token": "SLACK_TOKEN", "command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrink.http
-run-slackDrink:
+
+# build choose action
+build/choose.zip: actions/choose.swift
+	cat actions/_common.swift actions/mywhisk.swift actions/choose.swift > build/choose.swift
+	./compile.sh choose
+	wsk action update DC/choose build/choose.zip --kind swift:3 \
+		--annotation description 'Choose me a drink' \
+		--annotation final true --annotation web-export true
+
+
+# build incrementDrinkCount action
+build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift
+	cat lib/Redis/Redis*.swift actions/_common.swift actions/incrementDrinkCount.swift > build/incrementDrinkCount.swift
+	./compile.sh incrementDrinkCount
+	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.zip --kind swift:3 \
+		--annotation description 'Increment the drink counter' \
+		--annotation final true --annotation web-export true
+
+
+# build counts action
+build/counts.zip: actions/counts.swift
+	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
+	./compile.sh counts
+	wsk action update DC/counts build/counts.zip --kind swift:3 \
+		--annotation description 'Count the drinks' \
+		--annotation final true --annotation web-export true
+
+
+
+# ------------------------------------------------------------------------------
+# Run targets
+.PHONY: slackDrink choose counts incrementDrinkCount
+
+slackDrink: build/slackDrink.zip
 	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "token": "$(SLACK_TOKEN)", "text": "please"}' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrink.http
 
-# ------------------------------------------------------------------------------
-# targets for slackDrinkProcessor action
-
-build-slackDrinkProcessor:
-	cat actions/slackDrinkProcessor.swift > build/slackDrinkProcessor.swift
-	wsk action update DC/slackDrinkProcessor build/slackDrinkProcessor.swift \
-		--annotation description 'Receive Slack /drink command' \
-		--annotation final true --annotation web-export true
-
-# CLI: curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"token": "SLACK_TOKEN", "command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "text": "please"}'  https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/slackDrinkProcessor.http
-run-slackDrinkProcessor:
-	curl -s -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' \
-	-d '{"command": "/drink", "channel_id": "C3JDU7G20", "channel_name": "atest", "user_id": "A123BCDE4", "user_name": "akrabat", "response_url": "", "token": "$(SLACK_TOKEN)", "text": "please"}' \
-	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/slackDrinkProcessor.http
-
-
-# ------------------------------------------------------------------------------
-# targets for  choose action
-
-build-choose:
-	cat actions/_common.swift actions/choose.swift > build/choose.swift
-	wsk action update DC/choose build/choose.swift \
-		--annotation description 'Choose me a drink' \
-		--annotation final true --annotation web-export true
-
-# CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/choose.http
-run-choose:
+choose:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/choose.http
 
 
-# ------------------------------------------------------------------------------
-# targets for counts action
-
-build-counts:
-	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
-	wsk action update DC/counts build/counts.swift \
-		--annotation description 'Count the drinks' \
-		--annotation final true --annotation web-export true
-
-# CLI: curl -i -H 'Accept: application/json' https://openwhisk.ng.bluemix.net/api/v1/experimental/web/ibm1@19ft.com_craft/DC/counts.http
-run-counts:
+counts:
 	curl -s -i -H 'Content-Type: application/json' -H 'Accept: application/json' \
 	https://openwhisk.ng.bluemix.net/api/v1/experimental/web/$(NAMESPACE)/DC/counts.http
 
-
-# ------------------------------------------------------------------------------
-# targets for incrementDrinkCount action
-
-build-increment-drink-count:
+incrementDrinkCount:
 	cat lib/Redis/Redis*.swift actions/_common.swift actions/incrementDrinkCount.swift > build/incrementDrinkCount.swift
 	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.swift \
 		--annotation description 'Increment the drink counter' \
@@ -83,7 +75,8 @@ build-increment-drink-count:
 
 
 # ------------------------------------------------------------------------------
-# misc
+# Misc targets
+.PHONY: lastlog setup clean
 
 lastlog:
 	wsk activation list -l1 | tail -n1 | cut -d ' ' -f1 | xargs wsk activation logs
@@ -92,29 +85,7 @@ setup:
 	# Create package
 	wsk package update DC --param-file parameters.json
 
-
-
-# ------------------------------------------------------------------------------
-# Run the action from the command line
-
-action-choose:
-	-wsk action invoke --blocking --result DC/choose --param type hot
-
-action-counts:
-	-wsk action invoke --blocking --result DC/counts
-
-action-incrementDrinkCount:
-	-wsk action invoke --blocking --result DC/incrementDrinkCount  --param name "A test drink"
-
-
-# ------------------------------------------------------------------------------
-# API Gateway targets
-
-# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/choose | awk 'END {print $NF}'`; curl -i $api_url;
-api-endpoint-choose:
-	wsk api-experimental create /DC/choose get DC/choose
-
-# Call the API endpoint: api_url=`wsk api-experimental list | grep DC/count | awk 'END {print $NF}'`; curl -i $api_url;
-api-endpoint-counts:
-	wsk api-experimental create /DC/counts get DC/counts
-
+clean:
+	rm -rf build/*.swift
+	rm -rf build/*.zip
+	rm -rf build/*.js

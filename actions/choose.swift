@@ -3,7 +3,6 @@ import Glibc
 import Foundation
 import SwiftyJSON
 
-
 // add randomElement() to the Array type
 extension Array {
     func randomElement() -> Element {
@@ -51,10 +50,12 @@ func main(args: [String:Any]) -> [String:Any] {
     // call incrementDrinkCount action
     let namespace : String = env["__OW_NAMESPACE"] ?? ""
     let incrementAction = "/" + namespace + "/DC/incrementDrinkCount"
-    let result = Whisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink])
+    let result = MyWhisk.invoke(actionNamed: incrementAction, withParameters: ["name": drink], blocking: false)
+
+    print("result = \(result)")
 
     let jsonResult = JSON(result)
-    if jsonResult["response"]["success"].boolValue == false {
+    if jsonResult["activationId"].stringValue == "" {
         print("error: incrementDrinkCount failed")
         return createResponse(["error": "incrementDrinkCount failed"], code: 500)
     }
