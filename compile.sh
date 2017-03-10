@@ -1,6 +1,7 @@
 #!/bin/bash
 
-docker run -it -v "$(pwd):/owexec" openwhisk/swift3action bash -e -c "
+# docker run -it -v "$(pwd):/owexec" openwhisk/swift3action bash -e -c "
+docker run -it -v "$(pwd):/owexec" compile-ow-swift bash -e -c "
 
 if [ -z \"$1\" ] ; then
     echo 'Error: Missing action name'

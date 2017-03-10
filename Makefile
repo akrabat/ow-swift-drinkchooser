@@ -1,13 +1,16 @@
 
-NAMESPACE = ORGANISATION_SPACE
-SLACK_TOKEN = FROMSLACK
+# ------------------------------------------------------------------------------
+# Variables
+# NAMESPACE is your OpenWhisk namespace. Default to last item in `wsk namespace list`
+# SLACK_TOKEN is the Slack API token from parameters.json
+NAMESPACE = $(shell wsk namespace list | tail -n1)
+SLACK_TOKEN = $(shell cat parameters.json |  python -c "import sys, json; print json.load(sys.stdin)['slack_verification_token']")
 
 
 # ------------------------------------------------------------------------------
 # Default target: update all actions into OpenWhisk if swift file changes
 .PHONY: update
 update: build/slackDrink.zip build/choose.zip build/incrementDrinkCount.zip build/counts.zip
-
 
 # ------------------------------------------------------------------------------
 # Build targets
