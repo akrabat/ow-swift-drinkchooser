@@ -4,7 +4,7 @@ SLACK_TOKEN = FROMSLACK
 
 
 # ------------------------------------------------------------------------------
-# Default target: update all actions into OpenWhisk
+# Default target: update all actions into OpenWhisk if swift file changes
 .PHONY: update
 update: build/slackDrink.zip build/choose.zip build/incrementDrinkCount.zip build/counts.zip
 
@@ -13,7 +13,7 @@ update: build/slackDrink.zip build/choose.zip build/incrementDrinkCount.zip buil
 # Build targets
 
 # build slackDrink action
-build/slackDrink.zip: actions/slackDrink.swift
+build/slackDrink.zip: actions/slackDrink.swift actions/_common.swift
 	cat actions/_common.swift actions/slackDrink.swift > build/slackDrink.swift
 	./compile.sh slackDrink
 	wsk action update DC/slackDrink build/slackDrink.zip --kind swift:3 \
@@ -22,7 +22,7 @@ build/slackDrink.zip: actions/slackDrink.swift
 
 
 # build choose action
-build/choose.zip: actions/choose.swift
+build/choose.zip: actions/choose.swift actions/_common.swift
 	cat actions/_common.swift actions/mywhisk.swift actions/choose.swift > build/choose.swift
 	./compile.sh choose
 	wsk action update DC/choose build/choose.zip --kind swift:3 \
@@ -31,7 +31,7 @@ build/choose.zip: actions/choose.swift
 
 
 # build incrementDrinkCount action
-build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift
+build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift actions/_common.swift
 	cat lib/Redis/Redis*.swift actions/_common.swift actions/incrementDrinkCount.swift > build/incrementDrinkCount.swift
 	./compile.sh incrementDrinkCount
 	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.zip --kind swift:3 \
@@ -40,7 +40,7 @@ build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift
 
 
 # build counts action
-build/counts.zip: actions/counts.swift
+build/counts.zip: actions/counts.swift actions/_common.swift
 	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
 	./compile.sh counts
 	wsk action update DC/counts build/counts.zip --kind swift:3 \
