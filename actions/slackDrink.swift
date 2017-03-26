@@ -50,18 +50,18 @@ func main(args: [String:Any]) -> [String:Any] {
     let drink = jsonResult["response"]["result"]["recommendation"].stringValue
 
     print("How about \(drink), \(username)?")
-    // print("Result: \(result)")
 
     let body: [String:Any] = [
         "response_type": "in_channel",
         "text" : "How about \(drink), \(username)?"
     ]
 
-    if responseUrl != "" {
-        print("posting to \(responseUrl)")
-        postJsonTo(responseUrl, data: body) { response in
-        }
-    }
+    // This was needed when Swift actions were too slow at cold start
+    // if responseUrl != "" {
+    //     print("posting to \(responseUrl)")
+    //     postJsonTo(responseUrl, data: body) { response in
+    //     }
+    // }
 
     return createResponse(body)
 }
