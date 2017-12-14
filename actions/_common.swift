@@ -21,7 +21,7 @@ extension String {
 // If it's a web action we can return the code and set headers. If it isn't,
 // then we can only return the data.
 //
-// We determine if it's a web action call by looking for the "__ow_meta_verb"
+// We determine if it's a web action call by looking for the "__ow_method"
 // key in the input data
 func createResponse(_ body: [String: Any], code: Int = 200) -> [String:Any]
 {
@@ -31,8 +31,8 @@ func createResponse(_ body: [String: Any], code: Int = 200) -> [String:Any]
         return body
     }
 
-    if whiskInput.range(of:"__ow_meta_verb") != nil {
-        // This is a web action as the arguments contain the "__ow_meta_verb" key
+    if whiskInput.range(of:"__ow_method") != nil {
+        // This is a web action as the arguments contain the "__ow_method" key
 
         let json = WhiskJsonUtils.dictionaryToJsonString(jsonDict: body) ?? ""
         return [
