@@ -19,7 +19,7 @@ update: build/slackDrink.zip build/choose.zip build/incrementDrinkCount.zip buil
 build/slackDrink.zip: actions/slackDrink.swift actions/_common.swift
 	cat actions/_common.swift actions/slackDrink.swift > build/slackDrink.swift
 	./compile.sh slackDrink
-	wsk action update DC/slackDrink build/slackDrink.zip --kind swift:3 \
+	wsk action update DC/slackDrink build/slackDrink.zip --kind swift:3.1.1 \
 		--annotation description 'Process Slack /drink command' \
 		--annotation final true --annotation web-export true
 
@@ -28,7 +28,7 @@ build/slackDrink.zip: actions/slackDrink.swift actions/_common.swift
 build/choose.zip: actions/choose.swift actions/_common.swift
 	cat actions/_common.swift actions/mywhisk.swift actions/choose.swift > build/choose.swift
 	./compile.sh choose
-	wsk action update DC/choose build/choose.zip --kind swift:3 \
+	wsk action update DC/choose build/choose.zip --kind swift:3.1.1 \
 		--annotation description 'Choose me a drink' \
 		--annotation final true --annotation web-export true
 
@@ -37,7 +37,7 @@ build/choose.zip: actions/choose.swift actions/_common.swift
 build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift actions/_common.swift
 	cat lib/Redis/Redis*.swift actions/_common.swift actions/incrementDrinkCount.swift > build/incrementDrinkCount.swift
 	./compile.sh incrementDrinkCount
-	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.zip --kind swift:3 \
+	wsk action update DC/incrementDrinkCount build/incrementDrinkCount.zip --kind swift:3.1.1 \
 		--annotation description 'Increment the drink counter' \
 		--annotation final true --annotation web-export true
 
@@ -46,7 +46,7 @@ build/incrementDrinkCount.zip: actions/incrementDrinkCount.swift actions/_common
 build/counts.zip: actions/counts.swift actions/_common.swift
 	cat lib/Redis/Redis*.swift actions/_common.swift actions/counts.swift > build/counts.swift
 	./compile.sh counts
-	wsk action update DC/counts build/counts.zip --kind swift:3 \
+	wsk action update DC/counts build/counts.zip --kind swift:3.1.1 \
 		--annotation description 'Count the drinks' \
 		--annotation final true --annotation web-export true
 

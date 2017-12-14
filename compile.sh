@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker run --rm -it -v "$(pwd):/owexec" openwhisk/swift3action bash -e -c "
+docker run --rm -it -v "$(pwd):/owexec" openwhisk/action-swift-v3.1.1 bash -e -c "
 
 if [ -z \"$1\" ] ; then
     echo 'Usage: compile.sh {action name}'
